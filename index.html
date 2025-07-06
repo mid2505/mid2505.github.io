@@ -31,8 +31,138 @@
 
   <title>login</title>
   <link rel="manifest" href="manifest.json">
+  
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --primary-color: #0175C2;
+      --secondary-color: #f0f0f0;
+      --border-color: #e0e0e0;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --primary-color: #4fc3f7;
+      --secondary-color: #2d2d2d;
+      --border-color: #404040;
+      --shadow-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px var(--shadow-color);
+      transition: all 0.3s ease;
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 20px var(--shadow-color);
+    }
+    
+    .theme-toggle:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+    
+    /* Apply theme to Flutter app container */
+    flt-glass-pane {
+      background-color: var(--bg-color) !important;
+    }
+    
+    /* Dark theme filter for Flutter content when needed */
+    [data-theme="dark"] flt-glass-pane {
+      filter: brightness(0.9) contrast(1.1);
+    }
+  </style>
 </head>
 <body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
+    <span id="themeIcon">🌙</span>
+  </button>
+  
+  <script>
+    // Theme switcher functionality
+    (function() {
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      const body = document.body;
+      
+      // Check for saved theme preference or default to light mode
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      
+      // Apply saved theme
+      if (savedTheme === 'dark') {
+        body.setAttribute('data-theme', 'dark');
+        themeIcon.textContent = '☀️';
+      } else {
+        body.removeAttribute('data-theme');
+        themeIcon.textContent = '🌙';
+      }
+      
+      // Toggle theme function
+      function toggleTheme() {
+        const currentTheme = body.getAttribute('data-theme');
+        
+        if (currentTheme === 'dark') {
+          body.removeAttribute('data-theme');
+          themeIcon.textContent = '🌙';
+          localStorage.setItem('theme', 'light');
+        } else {
+          body.setAttribute('data-theme', 'dark');
+          themeIcon.textContent = '☀️';
+          localStorage.setItem('theme', 'dark');
+        }
+      }
+      
+      // Add click event listener
+      themeToggle.addEventListener('click', toggleTheme);
+      
+      // Add keyboard support
+      themeToggle.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleTheme();
+        }
+      });
+      
+      // Respect system preference if no saved preference
+      if (!localStorage.getItem('theme')) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+          body.setAttribute('data-theme', 'dark');
+          themeIcon.textContent = '☀️';
+          localStorage.setItem('theme', 'dark');
+        }
+      }
+    })();
+  </script>
+  
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
